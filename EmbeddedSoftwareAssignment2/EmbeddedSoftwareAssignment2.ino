@@ -1,4 +1,13 @@
+#include <B31DGMonitor.h>
+#include <Ticker.h>
+#include <Arduino.h>
+
+
 #define FRAME_DURATION_MS 2     // 2ms
+#define Signal1 5
+
+B31DGCyclicExecutiveMonitor monitor;
+Ticker FrameTick;
 
 unsigned long frameTime = 0;
 unsigned long frameCounter = 0;
@@ -9,20 +18,22 @@ void setup(void)
   Serial.begin(9600);
   while(!Serial);
   Serial.println("Ready");
+
+  pinMode(Signal1, OUTPUT);
     
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------
 void Task1() {                     //takes 286us
-  digitalWrite(LED, HIGH);
+  digitalWrite(Signal1, HIGH);
   delayMicroseconds(200); // Wait for 1000 millisecond(s)
-  digitalWrite(LED, LOW);
+  digitalWrite(Signal1, LOW);
   delayMicroseconds(50);
-  digitalWrite(LED, HIGH);
+  digitalWrite(Signal1, HIGH);
   delayMicroseconds(30); // Wait for 1000 millisecond(s)
-  digitalWrite(LED, LOW);
+  digitalWrite(Signal1, LOW);
   delayMicroseconds(3720);
 }
-/----------------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------
 void frame() {
    
    unsigned int slot = frameCounter % 10;
@@ -65,15 +76,20 @@ void loop(void) // Single time slot function of the Cyclic Executive (repeating)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
-// Fake tasks
-//----------------------------------------------------------------------------------------------------------------------------------------------
-// Task 1, takes 0.9ms
 void JobTask1(void) 
 {
-   monitor.jobStarted(1);
-   delayMicroseconds(900); 
-   monitor.jobEnded(1);
+  monitor.jobStarted(1);
+  digitalWrite(Signal1, HIGH);
+  delayMicroseconds(200); // Wait for 1000 millisecond(s)
+  digitalWrite(Signal1, LOW);
+  delayMicroseconds(50);
+  digitalWrite(Signal1, HIGH);
+  delayMicroseconds(30); // Wait for 1000 millisecond(s)
+  digitalWrite(Signal1, LOW);
+  delayMicroseconds(3720); 
+  monitor.jobEnded(1);
 } 
+//----------------------------------------------------------------------------------------------------------------------------------------------
 
 // Task 2, takes 1.8ms
 void JobTask2(void) 
