@@ -12,7 +12,17 @@ void setup(void)
     
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------
-
+void Task1() {                     //takes 286us
+  digitalWrite(LED, HIGH);
+  delayMicroseconds(200); // Wait for 1000 millisecond(s)
+  digitalWrite(LED, LOW);
+  delayMicroseconds(50);
+  digitalWrite(LED, HIGH);
+  delayMicroseconds(30); // Wait for 1000 millisecond(s)
+  digitalWrite(LED, LOW);
+  delayMicroseconds(3720);
+}
+/----------------------------------------------------------------------------------------------------------------------------------------------
 void frame() {
    
    unsigned int slot = frameCounter % 10;
