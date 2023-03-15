@@ -5,11 +5,14 @@
 
 #define FRAME_DURATION_MS 2     // 2ms
 //For Task1
-#define Signal1 17
+#define LED1 17
 //For Task2
-#define Inpulse2 6 
-//For Task2
-#define Inpulse3 5 
+#define Inpulse1 6 
+//For Task3
+#define Inpulse2 5
+//For Task4
+#define PWM 0
+#define LED2 18
 
 B31DGCyclicExecutiveMonitor monitor;
 Ticker FrameTick;
@@ -17,14 +20,16 @@ Ticker FrameTick;
 unsigned long frameTime = 0;
 unsigned long frameCounter = 0;
 //Task2
+int bt1 = 0;
+int Cycle1 = 0;
+int Frequency1 = 0;
+//Task3
 int bt2 = 0;
 int Cycle2 = 0;
 int Frequency2 = 0;
-//Task3
-int bt3 = 0;
-int Cycle3 = 0;
-int Frequency3 = 0;
-//
+//Task 5
+int FrequencyValue1 = 0;
+int FrequencyValue2 = 0;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 void setup(void)
@@ -34,13 +39,14 @@ void setup(void)
   Serial.println("Ready");
 
   //Assigned for task1 
-  pinMode(Signal1, OUTPUT);
+  pinMode(LED1, OUTPUT);
   //Assigned for task2
-  pinMode(Inpulse2, INPUT);
+  pinMode(Inpulse1, INPUT);
   //Assigned for task3
-  pinMode(Inpulse3, INPUT);
+  pinMode(Inpulse2, INPUT);
   //Assigned for task4
-
+  pinMode(PWM, INPUT);
+  pinMode(LED2, OUTPUT);
     
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -90,13 +96,13 @@ void loop(void) // Single time slot function of the Cyclic Executive (repeating)
 void JobTask1(void) 
 {
   monitor.jobStarted(1);
-  digitalWrite(Signal1, HIGH);
+  digitalWrite(LED1, HIGH);
   delayMicroseconds(200); // Wait for 1000 millisecond(s)
-  digitalWrite(Signal1, LOW);
+  digitalWrite(LED1, LOW);
   delayMicroseconds(50);
-  digitalWrite(Signal1, HIGH);
+  digitalWrite(LED1, HIGH);
   delayMicroseconds(30); // Wait for 1000 millisecond(s)
-  digitalWrite(Signal1, LOW);
+  digitalWrite(LED1, LOW);
   delayMicroseconds(3720); 
   monitor.jobEnded(1);
 } 
@@ -106,15 +112,14 @@ void JobTask1(void)
 void JobTask2(void) 
 {
   monitor.jobStarted(2);
-  int bT2 = micros();
-  Cycle2 = pulseIn(Inpulse2, HIGH);
-  if(Cycle2 > 0){
-  Frequency2 = 1/(2*Cycle2*0.000001);
+  int bT1 = micros();
+  Cycle1 = pulseIn(Inpulse1, HIGH);
+  if(Cycle1 > 0){
+  Frequency1 = 1/(2*Cycle2*0.000001);
   }else{
     Frequency2 = 333;
   }
-  Serial.println("Task 2 Frequency is now: ");
-  Serial.println(Frequency2);
+  Serial.printf("The Task 3 Frequency is now:", Frequency1);
   monitor.jobEnded(2);
 } 
 
@@ -122,15 +127,14 @@ void JobTask2(void)
 void JobTask3(void) 
 {
    monitor.jobStarted(3);
-  int bT3 = micros();
-  Cycle3 = pulseIn(Inpulse3, HIGH);
-  if(Cycle3 > 0){
-  Frequency3 = 1/(2*Cycle3*0.000001);
+  int bT2 = micros();
+  Cycle2 = pulseIn(Inpulse2, HIGH);
+  if(Cycle2 > 0){
+  Frequency2 = 1/(2*Cycle2*0.000001);
   }else{
-    Frequency3 = 500;
+    Frequency2 = 500;
   }
-  Serial.println("Task 3 Frequency is now: ");
-  Serial.println(Frequency3);
+  Serial.printf("The Task 3 Frequency is now: ", Frequency2);
   monitor.jobEnded(3);
 } 
 
@@ -145,13 +149,28 @@ void JobTask4(void)
   
   //Then caclulate average of the 4 values and convert to voltage value
   float Average = (R1 + R2 + R3 + R4)/(4*4095/3.3);
-  Serial.println(Average);
+  Serial.printf("The Task 4 Average is: %d, ", Average);
 
   if (Average >= 1.65){      //light LED when the voltage is above 1.65V
   //This should be LED two (green)
-    digitalWrite(LED1, HIGH);
+    digitalWrite(LED2, HIGH);
     delay(100);
-    digitalWrite(LED1, LOW);                       //Turn off LED when voltage is below 1.65V
+    digitalWrite(LED2, LOW);                       //Turn off LED when voltage is below 1.65V
   }
    monitor.jobEnded(4); 
 } 
+
+void JobTask5(void)
+{
+   if(frameCounter % 25 == 0){           //Run task only at intervals of 100us
+    monitor.jobStarted(5);
+    FrequencyValue1 = map(Frequency1,333,1000, 0, 99);   //Limit integers to only
+    FrequencyValue2 = map(Frequency2,500,1000, 0, 99);   //between 0 and 99.99
+    FrequencyValue1 = constrain(FrequencyValue1,0,99);   //Limit integers to only
+    FrequencyValue2 = constrain(FrequencyValue2,0,99);   //between 0 and 99.99
+    
+    Serial.printf("Task 2 Frequnecy = %d, ", FrequencyValue1 );   //Serial print
+    Serial.printf("Task 3 Frequency = %d, ", FrequencyValue2 ); //integers
+    monitor.jobEnded(5);
+   }
+}
