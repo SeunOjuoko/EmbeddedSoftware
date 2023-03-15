@@ -4,13 +4,19 @@
 
 
 #define FRAME_DURATION_MS 2     // 2ms
+//For Task1
 #define Signal1 5
+//For Task2
+#define Inpulse2 6 
 
 B31DGCyclicExecutiveMonitor monitor;
 Ticker FrameTick;
 
 unsigned long frameTime = 0;
 unsigned long frameCounter = 0;
+int bt = 0;
+int Cycle2 = 0;
+int Frequency2 = 0;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 void setup(void)
@@ -19,19 +25,11 @@ void setup(void)
   while(!Serial);
   Serial.println("Ready");
 
+  //Assigned for task1 
   pinMode(Signal1, OUTPUT);
+  //Assigned for tasK2
+  pinMode(Inpulse2, INPUT);
     
-}
-//----------------------------------------------------------------------------------------------------------------------------------------------
-void Task1() {                     //takes 286us
-  digitalWrite(Signal1, HIGH);
-  delayMicroseconds(200); // Wait for 1000 millisecond(s)
-  digitalWrite(Signal1, LOW);
-  delayMicroseconds(50);
-  digitalWrite(Signal1, HIGH);
-  delayMicroseconds(30); // Wait for 1000 millisecond(s)
-  digitalWrite(Signal1, LOW);
-  delayMicroseconds(3720);
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------
 void frame() {
@@ -69,13 +67,14 @@ void loop(void) // Single time slot function of the Cyclic Executive (repeating)
   exit(0);
   */
 
-  
-  frame();
+  JobTask2();
+  //frame();
 
   // TO-DO: wait the next frame  
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
+// Task 1, takes 0.9ms
 void JobTask1(void) 
 {
   monitor.jobStarted(1);
@@ -94,9 +93,17 @@ void JobTask1(void)
 // Task 2, takes 1.8ms
 void JobTask2(void) 
 {
-   monitor.jobStarted(2);
-   delayMicroseconds(1800);
-   monitor.jobEnded(2); 
+  monitor.jobStarted(2);
+  int bT = micros();
+  Cycle2 = pulseIn(Inpulse2, HIGH);
+  if(Cycle2 > 0){
+  Frequency2 = 1/(2*Cycle2*0.000001);
+  }else{
+    Frequency2 = 333;
+  }
+  Serial.println("Task 2 Frequency is now: ");
+  Serial.println(Frequency2);
+  monitor.jobEnded(2);
 } 
 
 // Task 3, takes 1ms
