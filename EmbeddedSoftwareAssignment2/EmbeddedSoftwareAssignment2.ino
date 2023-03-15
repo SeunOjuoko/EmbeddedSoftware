@@ -5,18 +5,26 @@
 
 #define FRAME_DURATION_MS 2     // 2ms
 //For Task1
-#define Signal1 5
+#define Signal1 17
 //For Task2
 #define Inpulse2 6 
+//For Task2
+#define Inpulse3 5 
 
 B31DGCyclicExecutiveMonitor monitor;
 Ticker FrameTick;
 
 unsigned long frameTime = 0;
 unsigned long frameCounter = 0;
-int bt = 0;
+//Task2
+int bt2 = 0;
 int Cycle2 = 0;
 int Frequency2 = 0;
+//Task3
+int bt3 = 0;
+int Cycle3 = 0;
+int Frequency3 = 0;
+//
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 void setup(void)
@@ -27,8 +35,12 @@ void setup(void)
 
   //Assigned for task1 
   pinMode(Signal1, OUTPUT);
-  //Assigned for tasK2
+  //Assigned for task2
   pinMode(Inpulse2, INPUT);
+  //Assigned for task3
+  pinMode(Inpulse3, INPUT);
+  //Assigned for task4
+
     
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -90,11 +102,11 @@ void JobTask1(void)
 } 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 
-// Task 2, takes 1.8ms
+// Task 2
 void JobTask2(void) 
 {
   monitor.jobStarted(2);
-  int bT = micros();
+  int bT2 = micros();
   Cycle2 = pulseIn(Inpulse2, HIGH);
   if(Cycle2 > 0){
   Frequency2 = 1/(2*Cycle2*0.000001);
@@ -106,18 +118,40 @@ void JobTask2(void)
   monitor.jobEnded(2);
 } 
 
-// Task 3, takes 1ms
+// Task 3
 void JobTask3(void) 
 {
    monitor.jobStarted(3);
-   delayMicroseconds(1000);
-   monitor.jobEnded(3); 
+  int bT3 = micros();
+  Cycle3 = pulseIn(Inpulse3, HIGH);
+  if(Cycle3 > 0){
+  Frequency3 = 1/(2*Cycle3*0.000001);
+  }else{
+    Frequency3 = 500;
+  }
+  Serial.println("Task 3 Frequency is now: ");
+  Serial.println(Frequency3);
+  monitor.jobEnded(3);
 } 
 
-// Task 4, takes 2ms
+// Task 4
 void JobTask4(void) 
 {
-   monitor.jobStarted(4);
-   delayMicroseconds(2000);
+  monitor.jobStarted(4);
+  int R1 = analogRead(PWM);  //Measure four seperate analogue readings
+  int R2 = analogRead(PWM);  //Store each one in a seperate float
+  int R3 = analogRead(PWM);
+  int R4 = analogRead(PWM);
+  
+  //Then caclulate average of the 4 values and convert to voltage value
+  float Average = (R1 + R2 + R3 + R4)/(4*4095/3.3);
+  Serial.println(Average);
+
+  if (Average >= 1.65){      //light LED when the voltage is above 1.65V
+  //This should be LED two (green)
+    digitalWrite(LED1, HIGH);
+    delay(100);
+    digitalWrite(LED1, LOW);                       //Turn off LED when voltage is below 1.65V
+  }
    monitor.jobEnded(4); 
 } 
