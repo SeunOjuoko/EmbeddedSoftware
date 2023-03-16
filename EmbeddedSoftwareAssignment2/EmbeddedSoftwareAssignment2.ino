@@ -5,11 +5,11 @@
 #define FRAME_DURATION_MS 2     // 2ms
 
 //Pin definitions for Task 1
-#define LED1 17                 //First LED (Pin 17)
+#define LED1 19                 //First LED (Pin 17)
 //Pin definitions for Task 2
 #define Inpulse1 6              //First inpulse (pin 6)
 //Pin definitions for Task 3
-#define Inpulse2 5              //Second inpulse (pin 5)
+#define Inpulse2 7              //Second inpulse (pin 7)
 //Pin definitions for Task 4
 #define AC 0                    //AC (pin 0)
 #define LED2 18                 //Second LED (pin 18)
@@ -18,7 +18,7 @@ B31DGCyclicExecutiveMonitor monitor;
 Ticker FrameTick;
 
 //Declares Long variable for the frame procedure
-//unsigned long frameTime = 0;              
+unsigned long frameTime = 0;              
 unsigned long frameCounter = 0;           //Initialises Frame Counter
 //Variables for Task 2
 int Frequency1 = 0;       //First frequency is declared as an integer
@@ -27,6 +27,7 @@ int Frequency2 = 0;       //Second frequency is declared as an integer
 //Variables for Task 5
 int FrequencyValue1 = 0;  //First frequency value is declared as an integer
 int FrequencyValue2 = 0;  //Second frequency value is declared as an integer
+
 //----------------------------------------------------------------------------------------------------------------------------------------------
 void setup(void)
 {
@@ -44,6 +45,11 @@ void setup(void)
   //Assigned for task4
   pinMode(AC, INPUT);        //Initialises the AC as an input signal (Pin 0)
   pinMode(LED2, OUTPUT);     //Initialises the second LED as an output signal (Pin 18)
+  
+  FrameTick.attach_ms(4, frame);  //Define ticker size as 4ms for the "Frame" function
+  JobTask1();                     //Run task 1 followed by fixed delay in
+  delayMicroseconds(2000);        //order to fix associated with startMonitoring
+  monitor.startMonitoring();      //Start monitoring scheme
     
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -92,7 +98,7 @@ void loop(void) // Single time slot function of the Cyclic Executive (repeating)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
-// Task 1, takes 0.9ms
+// Task 1, takes 4ms
 void JobTask1(void) 
 {
   //Starts the first job task
@@ -106,9 +112,8 @@ void JobTask1(void)
   //Turns on the first LED for 30μs
   digitalWrite(LED1, HIGH);
   delayMicroseconds(30);
-  //Turns on the first LED for the remaining microseconds 
+  //Turns on the first LED
   digitalWrite(LED1, LOW);
-  delayMicroseconds(3720); 
   //Ends the first job task
   monitor.jobEnded(1);
 } 
@@ -119,8 +124,10 @@ void JobTask2(void)
   //Starts the second job task
   monitor.jobStarted(2);
   int bT1 = micros();
-  int Cycle1 = pulseIn(Inpulse1, HIGH);
+  int Cycle1 = pulseIn(Inpulse1, HIGH, 4000);
+  //When the cycle is above 0 
   if(Cycle1 > 0){
+  //Calculates the Frequency through the equation 
   Frequency1 = 1/(2*Cycle1*0.000001);
   }else{
     //If lower then the freqency is set to 333
@@ -128,7 +135,7 @@ void JobTask2(void)
   }
   //Presents the first Frequency from Task 2 on the serial monitor
   Serial.printf("The Task 3 Frequency is now:", Frequency1);
-  delay(1000);
+  //delay(1000);
   //Ends the second job task
   monitor.jobEnded(2);
 } 
@@ -140,7 +147,7 @@ void JobTask3(void)
    monitor.jobStarted(3);
   int bT2 = micros();
   //PulseIn function inputs the cycle from the frequency generator
-  int Cycle2 = pulseIn(Inpulse2, HIGH);
+  int Cycle2 = pulseIn(Inpulse2, HIGH, 3000);
   //When the cycle is above 0 
   if(Cycle2 > 0){
     //Calculates the Frequency through the equation
@@ -151,7 +158,7 @@ void JobTask3(void)
   }
   //Presents the second Frequency from Task 3 on the serial monitor
   Serial.printf("The Task 3 Frequency is now: ", Frequency2);
-  delay(1000);
+  //delay(1000);
   //Ends the third job task
   monitor.jobEnded(3);
 } 
@@ -170,16 +177,17 @@ void JobTask4(void)
   //Calculate the Average value of the 4 values and convert to voltage value
   float Average = (R1 + R2 + R3 + R4)/(4*4095/3.3);
   //Presents the Average from Task 4 through the serial monitor
-  Serial.printf("The Task 4 Average is: %d, ", Average);
-  delay(1000);
+  //Serial.println(Average);
+  //delay(1000);
 
   //When the Average is above 1.65V...
   if (Average >= 1.65){      
     //Momentarily on second LED 
-    digitalWrite(LED2, HIGH);
-    delay(1000);
-    digitalWrite(LED2, LOW);                     
+    digitalWrite(LED2, HIGH);                   
+  } else {
+    digitalWrite(LED2, LOW); 
   }
+
   //Ends the fourth job task
    monitor.jobEnded(4); 
 } 
@@ -199,10 +207,8 @@ void JobTask5(void)
     //Constrain function limits the second Frequency value between 0 and 99 
     FrequencyValue2 = constrain(FrequencyValue2,0,99); 
 
-    //Presents the FrequencyValue1 from Task 5 through the serial monitor
-    Serial.printf("Task 2 Frequnecy = %d, ", FrequencyValue1 );  
-    //Presents the FrequencyValue2 from Task 5 through the serial monitor
-    Serial.printf("Task 3 Frequency = %d, ", FrequencyValue2 ); 
+    //Presents the FrequencyValue1 and FrequencyValue2 from Task 5 through the serial monitor
+    Serial.printf("%d, %d \n", FrequencyValue2, FrequencyValue1); 
     //Ends the fifth job task
     monitor.jobEnded(5);
    }
