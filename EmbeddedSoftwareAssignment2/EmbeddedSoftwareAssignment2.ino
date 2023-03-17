@@ -46,10 +46,13 @@ void setup(void)
   pinMode(AC, INPUT);        //Initialises the AC as an input signal (Pin 0)
   pinMode(LED2, OUTPUT);     //Initialises the second LED as an output signal (Pin 18)
   
-  FrameTick.attach_ms(4, frame);  //Define ticker size as 4ms for the "Frame" function
-  JobTask1();                     //Run task 1 followed by fixed delay in
-  delayMicroseconds(2000);        //order to fix associated with startMonitoring
-  monitor.startMonitoring();      //Start monitoring scheme
+  //Defined the ticker size as 4ms for the frame function
+  FrameTick.attach_ms(4, frame); 
+  //Begins with the Job Task1 that has the fixed delay of 2ms
+  JobTask1();
+  delay(2);
+  //Begins the start monitoring scheme
+  monitor.startMonitoring();      
     
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -76,25 +79,6 @@ void frame() {
 //----------------------------------------------------------------------------------------------------------------------------------------------
 void loop(void) // Single time slot function of the Cyclic Executive (repeating)
 {
-
-  // uncomment this to find execution time of given tasks 
-  /*
-  unsigned long bT = micros();
-  for (int i=0; i<1000; i++) {
-    JobTask1();
-  }
-  unsigned long timeItTook = micros()-bT;
-  Serial.print("Duration SerialOutput Job = ");
-  Serial.print(timeItTook);
-  exit(0);
-  */
-  //JobTask1();
-  //JobTask2();
-  //JobTask3();
-  //JobTask4();
-  //JobTask5();
-  //frame();
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -130,12 +114,11 @@ void JobTask2(void)
   //Calculates the Frequency through the equation 
   Frequency1 = 1/(2*Cycle1*0.000001);
   }else{
-    //If lower then the freqency is set to 333
+    //If lower then the frequency is set to 333
     Frequency1 = 333;
   }
   //Presents the first Frequency from Task 2 on the serial monitor
   Serial.printf("The Task 3 Frequency is now:", Frequency1);
-  //delay(1000);
   //Ends the second job task
   monitor.jobEnded(2);
 } 
@@ -153,12 +136,11 @@ void JobTask3(void)
     //Calculates the Frequency through the equation
     Frequency2 = 1/(2*Cycle2*0.000001);
   }else{
-    //If lower then the freqency is set to 500
+    //If lower then the frequency is set to 500
     Frequency2 = 500;
   }
   //Presents the second Frequency from Task 3 on the serial monitor
   Serial.printf("The Task 3 Frequency is now: ", Frequency2);
-  //delay(1000);
   //Ends the third job task
   monitor.jobEnded(3);
 } 
@@ -177,9 +159,8 @@ void JobTask4(void)
   //Calculate the Average value of the 4 values and convert to voltage value
   float Average = (R1 + R2 + R3 + R4)/(4*4095/3.3);
   //Presents the Average from Task 4 through the serial monitor
-  //Serial.println(Average);
-  //delay(1000);
-
+  Serial.println(Average);
+  
   //When the Average is above 1.65V...
   if (Average >= 1.65){      
     //Momentarily on second LED 
