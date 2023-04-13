@@ -292,7 +292,7 @@ void JobTask7(void *pvParameters) {
       //This value turns on the LED
       digitalWrite(LED3, Button);
     }
-    //Waits 8 ticks before repeating execution to avoid overloading system
+    //Waits 8 ticks before repeating execution to avoid overloading system.
     TaskDelay(8);
   }
 }
